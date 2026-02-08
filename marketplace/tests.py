@@ -1,3 +1,168 @@
-from django.test import TestCase
+import pytest
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient
+from unittest.mock import patch
+from .models import Job, Application
+from django.contrib.auth.models import User
 
-# Create your tests here.
+
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@pytest.fixture
+def create_data(db):
+    # Create user
+    user = User.objects.create_user(username='testuser', password='password')
+
+    # Create job
+    job = Job.objects.create(
+        title="Test Job",
+        description="Test Desc",
+        owner=user,
+        status='OPEN'
+    )
+
+    # Create application
+    application = Application.objects.create(
+        job=job,
+        freelancer_name="Test Freelancer",
+        bid_price=100.00
+    )
+
+    return user, job, application
+
+
+@pytest.mark.django_db
+class TestHiringProcess:
+
+    def test_hire_success(self, api_client, create_data):
+        """
+        Test: Successful update.
+        Validate that in the end of the process: 'status' == CLOSED, 'is_hired' == True
+        and response.status_code == status.HTTP_200_OK.
+        """
+        user, job, application = create_data
+        api_client.force_authenticate(user=user)
+
+        url = reverse('job-hire', args=[job.id]) # Creates /jobs/1/hire/
+
+        # In this test, the e-mail simulation function will always return True
+        with patch('marketplace.views.simulate_queue_push') as mock_email:
+            mock_email.return_value = True
+            response = api_client.post(url, {'application_id': application.id}, format='json')
+        assert response.status_code == status.HTTP_200_OK
+
+        job.refresh_from_db()
+        application.refresh_from_db()
+        assert job.status == 'CLOSED'
+        assert application.is_hired is True
+
+
+    def test_hire_job_already_closed(self, api_client, create_data):
+        """
+        Test: Prevention of hiring for a closed job (Race Condition logic).
+        Validate that response.status_code == status.HTTP_409_CONFLICT.
+        """
+        user, job, application = create_data
+        api_client.force_authenticate(user=user)
+
+        # Close manually
+        job.status = 'CLOSED'
+        job.save()
+
+        url = reverse('job-hire', args=[job.id]) # Creates /jobs/1/hire/
+        response = api_client.post(url, {'application_id': application.id}, format='json')
+
+        assert response.status_code == status.HTTP_409_CONFLICT
+
+
+    def test_hire_job_not_found(self, api_client, create_data):
+        """
+        Test: Attempt to hire for a non-existent job ID.
+        Validate that response.status_code == status.HTTP_404_NOT_FOUND.
+        """
+        user, _, application = create_data
+        api_client.force_authenticate(user=user)
+
+        non_existent_job_id = 99999
+        url = reverse('job-hire', args=[non_existent_job_id]) # Creates /jobs/1/hire/
+        response = api_client.post(url, {'application_id': application.id}, format='json')
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+    def test_hire_application_not_found(self, api_client, create_data):
+        """
+        Test: Attempt to hire with a non-existent application ID.
+        Validate that response.status_code == status.HTTP_404_NOT_FOUND.
+        """
+        user, job, _ = create_data
+        api_client.force_authenticate(user=user)
+
+        url = reverse('job-hire', args=[job.id]) # Creates /jobs/1/hire/
+        response = api_client.post(url, {'application_id': 88888}, format='json') # non-existent application_id
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+    def test_hire_application_mismatch(self, api_client, create_data):
+        """
+        Test: Application mismatch (Application belongs to a different job).
+        Validate that response.status_code == status.HTTP_404_NOT_FOUND.
+        """
+        user, job1, application1 = create_data
+        api_client.force_authenticate(user=user)
+
+        job2 = Job.objects.create(
+            title="Another Job",
+            owner=user,
+            status='OPEN'
+        )
+
+        # Try to hire application1 (related to job1) for job2
+        url = reverse('job-hire', args=[job2.id]) # Creates /jobs/2/hire/
+        response = api_client.post(url, {'application_id': application1.id}, format='json')
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+    def test_hire_missing_application_id(self, api_client, create_data):
+        """
+        Test: Missing 'application_id' in request body.
+        Validate that response.status_code == status.HTTP_400_BAD_REQUEST.
+        """
+        user, job, _ = create_data
+        api_client.force_authenticate(user=user)
+
+        url = reverse('job-hire', args=[job.id])
+        response = api_client.post(url, {'wrong_field': 123}, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+    def test_hire_rollback_on_email_failure(self, api_client, create_data):
+        """
+        Test: Transaction Rollback on external failure (Reliability/Bonus).
+        Validate that response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE,
+        and DB state reverts: 'status' == OPEN, 'is_hired' == False.
+        """
+        user, job, application = create_data
+        api_client.force_authenticate(user=user)
+
+        url = reverse('job-hire', args=[job.id])
+
+        # In this test, the e-mail simulation function will always raise a ConnectionError
+        with patch('marketplace.views.simulate_queue_push') as mock_email:
+            mock_email.side_effect = ConnectionError("Queue is down!")
+            response = api_client.post(url, {'application_id': application.id}, format='json')
+
+        assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
+
+        job.refresh_from_db()
+        application.refresh_from_db()
+
+        assert job.status == 'OPEN'
+        assert application.is_hired is False
