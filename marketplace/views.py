@@ -43,7 +43,7 @@ class JobViewSet(viewsets.ModelViewSet):
                 try: # Make sure that the application exists and that it is related to the job
                     application = Application.objects.select_for_update().get(
                         pk=application_id,
-                        job=pk
+                        job=job
                     ) # Lock the relevant application record
                 except Application.DoesNotExist: # application does not exist
                     return Response(
