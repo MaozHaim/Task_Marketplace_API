@@ -23,7 +23,6 @@ class JobViewSet(viewsets.ModelViewSet):
         Body: { "application_id": <int> }
         Returns: 200 OK, 409 Conflict (if already hired), or error details.
         """
-
         # Extract application_id from the request and validate existence
         application_id = request.data.get('application_id')
         if not application_id:
