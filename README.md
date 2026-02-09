@@ -38,33 +38,33 @@ The system facilitates a hiring process between **Job Owners** and **Freelancers
 
 ### 0. Prerequisites
 * Python 3.8+
-* `pip` (Python package installer)
+* pip (Python package installer)
 
 ### 1. Clone & Environment Setup
 1.1. **Clone the repository**
-   * git clone <your-repo-link>
-   * cd marketplace
+   * `git clone <your-repo-link>`
+   * `cd marketplace`
 
 1.2. **Create a virtual environment**
-python -m venv venv
+   * `python -m venv venv`
 
 1.3. **Activate the environment**
-   * On Windows: venv\Scripts\activate
-   * On Mac/Linux: source venv/bin/activate
+   * On Windows: `venv\Scripts\activate`
+   * On Mac/Linux: `source venv/bin/activate`
 
 ### 2. Install Dependencies
-   * pip install django djangorestframework pytest pytest-django
+   * `pip install django djangorestframework pytest pytest-django`
 
 ### 3. Database Setup
 Initialize the SQLite database and apply migrations -
-   * python manage.py migrate
+   * `python manage.py migrate`
 
 ### 4. Create Users (Crucial for testing)
 Since the system relies on authentication (Owners vs Freelancers), create a superuser to access the Admin panel and API:
-   * python manage.py createsuperuser
+   * `python manage.py createsuperuser`
 
 ### 5. Run the Server
-   * python manage.py runserver
+   * `python manage.py runserver`
    * Access the API at: http://127.0.0.1:8000/marketplace/jobs/
 
 ---
