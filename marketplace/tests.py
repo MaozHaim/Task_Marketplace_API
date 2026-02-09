@@ -31,11 +31,11 @@ def create_data(db):
     # Create application
     application = Application.objects.create(
         job=job,
-        freelancer_name=freelancer_user,
+        freelancer=freelancer_user,
         bid_price=100.00
     )
 
-    return owner_user, job, application
+    return owner_user, freelancer_user, job, application
 
 
 @pytest.mark.django_db
@@ -47,15 +47,16 @@ class TestHiringProcess:
         Validate that in the end of the process: 'status' == CLOSED, 'is_hired' == True
         and response.status_code == status.HTTP_200_OK.
         """
-        user, job, application = create_data
-        api_client.force_authenticate(user=user)
+        owner, freelancer, job, application = create_data
+        api_client.force_authenticate(user=owner)
 
-        url = reverse('job-hire', args=[job.id]) # Creates /jobs/1/hire/
-
-        # In this test, the e-mail simulation function will always return True
+        url = reverse('job-hire', args=[job.id])
         with patch('marketplace.views.simulate_queue_push') as mock_email:
             mock_email.return_value = True
             response = api_client.post(url, {'application_id': application.id}, format='json')
+
+        if response.status_code != 200:
+            print(f"\nERROR DEBUG: {response.status_code} - {response.data}")
         assert response.status_code == status.HTTP_200_OK
 
         job.refresh_from_db()
