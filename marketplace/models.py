@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class Job(models.Model):
     # Auto pk
     # Each job is related to an owner (valid user)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='jobs')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='jobs_by_user')
     title = models.CharField(max_length=200)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -18,8 +18,8 @@ class Job(models.Model):
 class Application(models.Model):
     # Auto pk
     # Each application is related to a (valid) job and a (valid) user
-    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
-    freelancer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications_submitted')
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications_by_job')
+    freelancer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications_by_user')
     bid_price = models.DecimalField(max_digits=10, decimal_places=2)
     is_hired = models.BooleanField(default=False)
     submitted_at = models.DateTimeField(auto_now_add=True)
