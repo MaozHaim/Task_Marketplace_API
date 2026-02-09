@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from .models import Job, Application
 from .serializers import JobSerializer, ApplicationSerializer
 import random
@@ -16,6 +17,7 @@ class JobViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Fill 'owner' field automatically
         serializer.save(owner=self.request.user)
+
 
     @action(detail=True, methods=['post'])
     def hire(self, request, pk=None):
@@ -44,10 +46,10 @@ class JobViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_409_CONFLICT
                     )
 
-                if job.owner == request.user: # Validate that owner != freelancer
+                if job.owner != request.user: # Only the owner can hire
                     return Response(
-                        {"error": "A freelancer can't apply to his own jobs"},
-                        status=status.HTTP_400_BAD_REQUEST
+                        {"error": "Only the job owner can hire freelancers."},
+                        status=status.HTTP_403_FORBIDDEN
                     )
 
                 try: # Make sure that the application exists and that it is related to the job
@@ -92,7 +94,11 @@ class ApplicationViewSet(viewsets.ModelViewSet):
 
 
     def perform_create(self, serializer):
-        # Fill 'freelancer' field automatically
+        job = serializer.validated_data['job']
+        if job.owner == self.request.user: # Validate that a freelancer doesn't apply to his own job
+            raise PermissionDenied("You cannot apply to your own job.")
+
+        # Fill 'freelancer' field automatically (if validated)
         serializer.save(freelancer=self.request.user)
 
 

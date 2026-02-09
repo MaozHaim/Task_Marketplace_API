@@ -70,8 +70,8 @@ class TestHiringProcess:
         Test: Prevention of hiring for a closed job (Race Condition logic).
         Validate that response.status_code == status.HTTP_409_CONFLICT.
         """
-        user, job, application = create_data
-        api_client.force_authenticate(user=user)
+        owner, freelancer, job, application = create_data
+        api_client.force_authenticate(user=owner)
 
         # Close manually
         job.status = 'CLOSED'
@@ -88,8 +88,8 @@ class TestHiringProcess:
         Test: Attempt to hire for a non-existent job ID.
         Validate that response.status_code == status.HTTP_404_NOT_FOUND.
         """
-        user, _, application = create_data
-        api_client.force_authenticate(user=user)
+        owner, freelancer, job, application = create_data
+        api_client.force_authenticate(user=owner)
 
         non_existent_job_id = 99999
         url = reverse('job-hire', args=[non_existent_job_id]) # Creates /jobs/1/hire/
@@ -103,8 +103,8 @@ class TestHiringProcess:
         Test: Attempt to hire with a non-existent application ID.
         Validate that response.status_code == status.HTTP_404_NOT_FOUND.
         """
-        user, job, _ = create_data
-        api_client.force_authenticate(user=user)
+        owner, freelancer, job, application = create_data
+        api_client.force_authenticate(user=owner)
 
         url = reverse('job-hire', args=[job.id]) # Creates /jobs/1/hire/
         response = api_client.post(url, {'application_id': 88888}, format='json') # non-existent application_id
@@ -117,12 +117,12 @@ class TestHiringProcess:
         Test: Application mismatch (Application belongs to a different job).
         Validate that response.status_code == status.HTTP_404_NOT_FOUND.
         """
-        user, job1, application1 = create_data
-        api_client.force_authenticate(user=user)
+        owner, freelancer, job1, application1 = create_data
+        api_client.force_authenticate(user=owner)
 
         job2 = Job.objects.create(
             title="Another Job",
-            owner=user,
+            owner=owner,
             status='OPEN'
         )
 
@@ -132,13 +132,14 @@ class TestHiringProcess:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
+
     def test_create_application_owner_cannot_apply(self, api_client, create_data):
         """
         Test: Owner attempts to apply for their own job.
-        Validate that response.status_code == status.HTTP_400_BAD_REQUEST.
+        Validate that response.status_code == status.HTTP_403_FORBIDDEN.
         """
-        user, job, _ = create_data
-        api_client.force_authenticate(user=user)
+        owner, freelancer, job, application = create_data
+        api_client.force_authenticate(user=owner)
 
         url = reverse('application-list')
         response = api_client.post(url, {
@@ -146,7 +147,7 @@ class TestHiringProcess:
             'bid_price': 100
         }, format='json')
 
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
     def test_hire_missing_application_id(self, api_client, create_data):
@@ -154,8 +155,8 @@ class TestHiringProcess:
         Test: Missing 'application_id' in request body.
         Validate that response.status_code == status.HTTP_400_BAD_REQUEST.
         """
-        user, job, _ = create_data
-        api_client.force_authenticate(user=user)
+        owner, freelancer, job, application = create_data
+        api_client.force_authenticate(user=owner)
 
         url = reverse('job-hire', args=[job.id])
         response = api_client.post(url, {'wrong_field': 123}, format='json')
@@ -169,8 +170,8 @@ class TestHiringProcess:
         Validate that response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE,
         and DB state reverts: 'status' == OPEN, 'is_hired' == False.
         """
-        user, job, application = create_data
-        api_client.force_authenticate(user=user)
+        owner, freelancer, job, application = create_data
+        api_client.force_authenticate(user=owner)
 
         url = reverse('job-hire', args=[job.id])
 
