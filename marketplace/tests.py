@@ -131,6 +131,22 @@ class TestHiringProcess:
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    def test_create_application_owner_cannot_apply(self, api_client, create_data):
+        """
+        Test: Owner attempts to apply for their own job.
+        Validate that response.status_code == status.HTTP_400_BAD_REQUEST.
+        """
+        user, job, _ = create_data
+        api_client.force_authenticate(user=user)
+
+        url = reverse('application-list')
+        response = api_client.post(url, {
+            'job': job.id,
+            'bid_price': 100
+        }, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
 
     def test_hire_missing_application_id(self, api_client, create_data):
         """
