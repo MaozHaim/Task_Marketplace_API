@@ -1,60 +1,131 @@
 # Task Marketplace API
+
+A SIMPLE Backend API for a freelance marketplace, built with **Django REST Framework (DRF)**.
+This project focuses on data integrity, concurrency management (handling Race Conditions), and system reliability.
+
+---
+
+## Project Overview & Workflow
+
+The system facilitates a hiring process between **Job Owners** and **Freelancers**.
+
+### The Flow:
+
+1.  **Job Creation**
+    * An **Owner** posts a new Job (Title, Description).
+    * Endpoint: `POST /marketplace/jobs/`
+
+2.  **Application**
+    * A **Freelancer** applies for the job with a bid price.
+    * *Validation:* Users cannot apply to their own jobs.
+    * Endpoint: `POST /marketplace/applications/`
+
+3.  **Hiring**
+    * The **Owner** selects an application and hires the freelancer.
+    * *Validation:* Only the job owner can perform this action.
+    * *Outcome:* The Job status becomes `CLOSED`, the Application is marked as `hired`, and a notification is sent.
+    * Endpoint: `POST /marketplace/jobs/{id}/hire/`
+
+---
+
+## Installation & Setup
+
+### Prerequisites
+* Python 3.8+
+* `pip` (Python package installer)
+
+### 1. Clone & Environment Setup
+
+bash
+# Clone the repository
+git clone <your-repo-link>
+cd marketplace
+
+# Create a virtual environment
+python -m venv venv
+
+# Activate the environment
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+
+
+# Task Marketplace API
 A Backend API for a freelance marketplace, built with Django REST Framework (DRF). This project focuses on data integrity, concurrency management (handling Race Conditions), and system reliability.
+
 
 # Project Overview & Workflow
 The system facilitates a hiring process between Job Owners and Freelancers.
 
+
 # The Flow:
 Job Creation: An Owner posts a new Job (Title, Description).
+
 Endpoint: POST /marketplace/jobs/
 
+
 Application: A Freelancer applies for the job with a bid price.
+
 Validation: Users cannot apply to their own jobs.
+
 Endpoint: POST /marketplace/applications/
 
+
 Hiring: The Owner selects an application and hires the freelancer.
+
 Validation: Only the job owner can perform this action.
+
 Outcome: The Job status becomes CLOSED, the Application is marked as hired, and a notification is sent.
+
 Endpoint: POST /marketplace/jobs/{id}/hire/
 
+
 # Installation & Setup
-Prerequisites
-Python 3.8+
-pip (Python package installer)
+0. Prerequisites
+
+python 3.8+, pip (Python package installer)
 
 1. Clone & Environment Setup
-(Bash)
 
-Clone the repository -
+a. Clone the repository -
+
 git clone <your-repo-link>
+
 cd marketplace
 
-Create a virtual environment -
+b. Create a virtual environment -
+
 python -m venv venv
 
-Activate the environment
+c. Activate the environment -
+
 On Windows:
 venv\Scripts\activate
+
 On Mac/Linux:
 source venv/bin/activate
 
 2. Install Dependencies
-(Bash)
+
 pip install django djangorestframework pytest pytest-django
 
 3. Database Setup
-4. Initialize the SQLite database and apply migrations:
-(Bash)
+
+Initialize the SQLite database and apply migrations -
+
 python manage.py migrate
 
-5. Create Users (Crucial for testing)
+4. Create Users (Crucial for testing)
+
 Since the system relies on authentication (Owners vs Freelancers), create a superuser to access the Admin panel and API:
-(Bash)
+
 python manage.py createsuperuser
 
 6. Run the Server
-(Bash)
+
 python manage.py runserver
+
 Access the API at: http://127.0.0.1:8000/marketplace/jobs/
 
 # Engineering Architecture
