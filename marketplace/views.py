@@ -44,7 +44,7 @@ class JobViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_409_CONFLICT
                     )
 
-                if job.owner == request.data.get('freelancer_id'):
+                if job.owner == request.user: # Validate that owner != freelancer
                     return Response(
                         {"error": "A freelancer can't apply to his own jobs"},
                         status=status.HTTP_400_BAD_REQUEST
