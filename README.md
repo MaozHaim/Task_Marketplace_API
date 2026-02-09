@@ -1,82 +1,69 @@
-Task Marketplace API
+# Task Marketplace API
 A Backend API for a freelance marketplace, built with Django REST Framework (DRF). This project focuses on data integrity, concurrency management (handling Race Conditions), and system reliability.
 
-Project Overview & Workflow
+# Project Overview & Workflow
 The system facilitates a hiring process between Job Owners and Freelancers.
 
-The Flow:
+# The Flow:
 Job Creation: An Owner posts a new Job (Title, Description).
 Endpoint: POST /marketplace/jobs/
 
 Application: A Freelancer applies for the job with a bid price.
-
 Validation: Users cannot apply to their own jobs.
-
 Endpoint: POST /marketplace/applications/
 
 Hiring: The Owner selects an application and hires the freelancer.
-
 Validation: Only the job owner can perform this action.
-
 Outcome: The Job status becomes CLOSED, the Application is marked as hired, and a notification is sent.
-
 Endpoint: POST /marketplace/jobs/{id}/hire/
 
-🛠️ Installation & Setup
+# Installation & Setup
 Prerequisites
 Python 3.8+
-
 pip (Python package installer)
 
 1. Clone & Environment Setup
-Bash
-# Clone the repository
+(Bash)
+
+Clone the repository -
 git clone <your-repo-link>
 cd marketplace
 
-# Create a virtual environment
+Create a virtual environment -
 python -m venv venv
 
-# Activate the environment
-# On Windows:
+Activate the environment
+On Windows:
 venv\Scripts\activate
-# On Mac/Linux:
+On Mac/Linux:
 source venv/bin/activate
+
 2. Install Dependencies
-Bash
+(Bash)
 pip install django djangorestframework pytest pytest-django
+
 3. Database Setup
-Initialize the SQLite database and apply migrations:
-
-Bash
+4. Initialize the SQLite database and apply migrations:
+(Bash)
 python manage.py migrate
-4. Create Users (Crucial for testing)
-Since the system relies on authentication (Owners vs Freelancers), create a superuser to access the Admin panel and API:
 
-Bash
+5. Create Users (Crucial for testing)
+Since the system relies on authentication (Owners vs Freelancers), create a superuser to access the Admin panel and API:
+(Bash)
 python manage.py createsuperuser
-5. Run the Server
-Bash
+
+6. Run the Server
+(Bash)
 python manage.py runserver
 Access the API at: http://127.0.0.1:8000/marketplace/jobs/
 
-🏗️ Engineering Architecture
+# Engineering Architecture
 1. Handling Race Conditions (The "Hire" Logic)
 The Challenge: Multiple requests trying to "hire" different freelancers for the same job simultaneously could lead to a job being closed twice or data corruption.
-
-The Solution: I implemented Pessimistic Locking using select_for_update() within an atomic transaction.
-
+The Solution: Locking using select_for_update() within an atomic transaction.
 Mechanism: When a hire request begins, the database locks the specific Job row.
-
 Effect: Any concurrent request trying to modify this job will pause and wait until the first transaction finishes.
-
 Result: The second request will see that the job status is already CLOSED and will fail gracefully with 409 Conflict.
-
-Python
-with transaction.atomic():
-    job = Job.objects.select_for_update().get(pk=pk)
-    if job.status != 'OPEN':
-        return Response(..., status=409)
 Note: While implemented here on SQLite, this locking mechanism is most effective on production databases like PostgreSQL.
 
 2. System Reliability (The Bonus Task)
