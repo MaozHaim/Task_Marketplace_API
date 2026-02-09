@@ -47,7 +47,7 @@ class TestHiringProcess:
         Validate that in the end of the process: 'status' == CLOSED, 'is_hired' == True
         and response.status_code == status.HTTP_200_OK.
         """
-        owner, freelancer, job, application = create_data
+        owner, _, job, application = create_data
         api_client.force_authenticate(user=owner)
 
         url = reverse('job-hire', args=[job.id])
@@ -70,7 +70,7 @@ class TestHiringProcess:
         Test: Prevention of hiring for a closed job (Race Condition logic).
         Validate that response.status_code == status.HTTP_409_CONFLICT.
         """
-        owner, freelancer, job, application = create_data
+        owner, _, job, application = create_data
         api_client.force_authenticate(user=owner)
 
         # Close manually
@@ -88,7 +88,7 @@ class TestHiringProcess:
         Test: Attempt to hire for a non-existent job ID.
         Validate that response.status_code == status.HTTP_404_NOT_FOUND.
         """
-        owner, freelancer, job, application = create_data
+        owner, _, _, application = create_data
         api_client.force_authenticate(user=owner)
 
         non_existent_job_id = 99999
@@ -103,7 +103,7 @@ class TestHiringProcess:
         Test: Attempt to hire with a non-existent application ID.
         Validate that response.status_code == status.HTTP_404_NOT_FOUND.
         """
-        owner, freelancer, job, application = create_data
+        owner, _, job, _ = create_data
         api_client.force_authenticate(user=owner)
 
         url = reverse('job-hire', args=[job.id]) # Creates /jobs/1/hire/
@@ -117,7 +117,7 @@ class TestHiringProcess:
         Test: Application mismatch (Application belongs to a different job).
         Validate that response.status_code == status.HTTP_404_NOT_FOUND.
         """
-        owner, freelancer, job1, application1 = create_data
+        owner, _, job1, application1 = create_data
         api_client.force_authenticate(user=owner)
 
         job2 = Job.objects.create(
@@ -138,7 +138,7 @@ class TestHiringProcess:
         Test: Owner attempts to apply for their own job.
         Validate that response.status_code == status.HTTP_403_FORBIDDEN.
         """
-        owner, freelancer, job, application = create_data
+        owner, _, job, _ = create_data
         api_client.force_authenticate(user=owner)
 
         url = reverse('application-list')
@@ -155,7 +155,7 @@ class TestHiringProcess:
         Test: Missing 'application_id' in request body.
         Validate that response.status_code == status.HTTP_400_BAD_REQUEST.
         """
-        owner, freelancer, job, application = create_data
+        owner, _, job, _ = create_data
         api_client.force_authenticate(user=owner)
 
         url = reverse('job-hire', args=[job.id])
@@ -170,7 +170,7 @@ class TestHiringProcess:
         Validate that response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE,
         and DB state reverts: 'status' == OPEN, 'is_hired' == False.
         """
-        owner, freelancer, job, application = create_data
+        owner, _, job, application = create_data
         api_client.force_authenticate(user=owner)
 
         url = reverse('job-hire', args=[job.id])
