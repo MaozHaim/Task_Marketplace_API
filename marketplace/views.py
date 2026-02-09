@@ -33,7 +33,7 @@ class JobViewSet(viewsets.ModelViewSet):
         application_id = request.data.get('application_id')
         if not application_id:
             return Response(
-                {"error": "application_id is required"},
+                {"error": "application_id is required."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -46,7 +46,7 @@ class JobViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_409_CONFLICT
                     )
 
-                if job.owner != request.user: # Only the owner can hire
+                if job.owner != request.user: # Only the owner can hire freelancers
                     return Response(
                         {"error": "Only the job owner can hire freelancers."},
                         status=status.HTTP_403_FORBIDDEN
@@ -107,6 +107,6 @@ def simulate_queue_push(application_id):
     Simulates pushing an e-mail request to a Message Queue.
     """
     if random.random() < 0.2: # 20% chance that the push failed
-        raise ConnectionError("Failed to push message to Notification Queue")
+        raise ConnectionError("Failed to push message to Notification Queue.")
 
     return True
