@@ -55,8 +55,6 @@ class TestHiringProcess:
             mock_email.return_value = True
             response = api_client.post(url, {'application_id': application.id}, format='json')
 
-        if response.status_code != 200:
-            print(f"\nERROR DEBUG: {response.status_code} - {response.data}")
         assert response.status_code == status.HTTP_200_OK
 
         job.refresh_from_db()
