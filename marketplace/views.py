@@ -78,7 +78,7 @@ class JobViewSet(viewsets.ModelViewSet):
 
         except Job.DoesNotExist: # Job does not exist
             return Response({"error": "Job not found."}, status=status.HTTP_404_NOT_FOUND)
-        except ConnectionError as e: # Failed to push to the Message Queue
+        except ConnectionError as ce: # Failed to push to the Message Queue
             return Response(
                 {"error": "Transaction rolled back: Could not reach notification service."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
