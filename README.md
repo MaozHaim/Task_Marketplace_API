@@ -30,91 +30,28 @@ The system facilitates a hiring process between **Job Owners** and **Freelancers
 
 ## Installation & Setup
 
-### Prerequisites
+### 0. Prerequisites
 * Python 3.8+
 * `pip` (Python package installer)
 
 ### 1. Clone & Environment Setup
+1.1. **Clone the repository**
+   * git clone <your-repo-link>
+   * cd marketplace
 
-bash
-# Clone the repository
-git clone <your-repo-link>
-cd marketplace
-
-# Create a virtual environment
+1.2. **Create a virtual environment**
 python -m venv venv
 
-# Activate the environment
-# On Windows:
-venv\Scripts\activate
-# On Mac/Linux:
-source venv/bin/activate
+1.3. **Activate the environment**
+   * On Windows: venv\Scripts\activate
+   * On Mac/Linux: source venv/bin/activate
 
+### 2. Install Dependencies
+   * pip install django djangorestframework pytest pytest-django
 
-# Task Marketplace API
-A Backend API for a freelance marketplace, built with Django REST Framework (DRF). This project focuses on data integrity, concurrency management (handling Race Conditions), and system reliability.
-
-
-# Project Overview & Workflow
-The system facilitates a hiring process between Job Owners and Freelancers.
-
-
-# The Flow:
-Job Creation: An Owner posts a new Job (Title, Description).
-
-Endpoint: POST /marketplace/jobs/
-
-
-Application: A Freelancer applies for the job with a bid price.
-
-Validation: Users cannot apply to their own jobs.
-
-Endpoint: POST /marketplace/applications/
-
-
-Hiring: The Owner selects an application and hires the freelancer.
-
-Validation: Only the job owner can perform this action.
-
-Outcome: The Job status becomes CLOSED, the Application is marked as hired, and a notification is sent.
-
-Endpoint: POST /marketplace/jobs/{id}/hire/
-
-
-# Installation & Setup
-0. Prerequisites
-
-python 3.8+, pip (Python package installer)
-
-1. Clone & Environment Setup
-
-a. Clone the repository -
-
-git clone <your-repo-link>
-
-cd marketplace
-
-b. Create a virtual environment -
-
-python -m venv venv
-
-c. Activate the environment -
-
-On Windows:
-venv\Scripts\activate
-
-On Mac/Linux:
-source venv/bin/activate
-
-2. Install Dependencies
-
-pip install django djangorestframework pytest pytest-django
-
-3. Database Setup
-
+### 3. Database Setup
 Initialize the SQLite database and apply migrations -
-
-python manage.py migrate
+   * python manage.py migrate
 
 4. Create Users (Crucial for testing)
 
