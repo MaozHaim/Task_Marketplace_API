@@ -14,25 +14,28 @@ def api_client():
 
 @pytest.fixture
 def create_data(db):
-    # Create user
-    user = User.objects.create_user(username='testuser', password='password')
+    # Create owner-user
+    owner_user = User.objects.create_user(username='boss_man', password='password')
+
+    # Create freelancer-user
+    freelancer_user = User.objects.create_user(username='python_dev', password='password')
 
     # Create job
     job = Job.objects.create(
         title="Test Job",
         description="Test Desc",
-        owner=user,
+        owner=owner_user,
         status='OPEN'
     )
 
     # Create application
     application = Application.objects.create(
         job=job,
-        freelancer_name="Test Freelancer",
+        freelancer_name=freelancer_user,
         bid_price=100.00
     )
 
-    return user, job, application
+    return owner_user, job, application
 
 
 @pytest.mark.django_db
