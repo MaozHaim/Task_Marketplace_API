@@ -44,6 +44,12 @@ class JobViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_409_CONFLICT
                     )
 
+                if job.owner == request.data.get('freelancer_id'):
+                    return Response(
+                        {"error": "A freelancer can't apply to his own jobs"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
                 try: # Make sure that the application exists and that it is related to the job
                     application = Application.objects.select_for_update().get(
                         pk=application_id,
