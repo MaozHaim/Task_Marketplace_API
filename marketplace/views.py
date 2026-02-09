@@ -11,6 +11,8 @@ class JobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.all().order_by('-created_at')
     serializer_class = JobSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
     def perform_create(self, serializer):
         # Fill 'owner' field automatically
         serializer.save(owner=self.request.user)
@@ -80,6 +82,12 @@ class JobViewSet(viewsets.ModelViewSet):
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all().order_by('-submitted_at')
     serializer_class = ApplicationSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+    def perform_create(self, serializer):
+        # Fill 'freelancer' field automatically
+        serializer.save(freelancer=self.request.user)
 
 
 def simulate_queue_push(application_id):
