@@ -17,6 +17,7 @@ class Job(models.Model):
 
 class Application(models.Model):
     # Auto pk
+    # Each application is related to a (valid) job and a (valid) user
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
     freelancer_name = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications_submitted')
     bid_price = models.DecimalField(max_digits=10, decimal_places=2)
