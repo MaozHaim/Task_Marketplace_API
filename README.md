@@ -62,7 +62,7 @@ Initialize the SQLite database and apply migrations -
 ### 4. Create Users (Crucial for testing)
 Since the system relies on authentication (Owners vs Freelancers), create a superuser to access the Admin panel and API:
    * `python manage.py createsuperuser`
-   * Crete at least one more user manually at http://127.0.0.1:8000/admin/
+   * Create at least one more user manually at: http://127.0.0.1:8000/admin/
 
 ### 5. Run the Server
    * `python manage.py runserver`
