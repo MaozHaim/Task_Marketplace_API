@@ -81,6 +81,6 @@ Note: While implemented here on SQLite, this locking mechanism is most effective
 
 ### 2. System Reliability (The Bonus Task)
    * The Challenge: The system needs to notify the freelancer (simulated via a Message Queue) upon hiring. What happens if the DB updates succeed, but the notification fails?
-   * The Decision: Strong Consistency (Rollback) I chose a Rollback Policy to prevent "Zombie States" (where a user is hired in the DB but was never notified).
+   * The Decision: Strong Consistency (Rollback). I chose a Rollback policy to prevent "Zombie States" (where a user is hired in the DB but was never notified).
    * Implementation: The notification function (simulate_queue_push) is called inside the transaction.atomic() block.
    * Outcome: If the external service fails (raises an Exception), the entire database transaction is rolled back. The Job remains OPEN and the Application remains not hired.
