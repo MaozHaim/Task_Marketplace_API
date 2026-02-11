@@ -17,13 +17,13 @@ The system facilitates a hiring process between **Job Owners** and **Freelancers
 
 2.  **Application**
     * A **Freelancer** applies for the job with a bid price.
-    * *Validation:* Users cannot apply to their own jobs.
+    * Validation: Users cannot apply to their own jobs.
     * Endpoint: `POST /marketplace/applications/`
 
 3.  **Hiring**
     * The **Owner** selects an application and hires the freelancer.
-    * *Validation:* Only the job owner can perform this action.
-    * *Outcome:* The Job status becomes `CLOSED`, the Application is marked as `hired`, and a notification is sent.
+    * Validation: Only the job owner can perform this action.
+    * Outcome: The Job status becomes `CLOSED`, the Application is marked as `hired`, and a notification is sent.
     * Endpoint: `POST /marketplace/jobs/{id}/hire/`
 
 ### File Structure Guide
