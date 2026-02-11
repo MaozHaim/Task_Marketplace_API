@@ -1,6 +1,6 @@
 # Task Marketplace API
 
-A simple Backend API for a freelance marketplace, built with **Django REST Framework (DRF)**.
+A simple Backend API for a freelance marketplace, built with Django REST Framework (DRF).
 This project focuses on data integrity, concurrency management (handling Race Conditions), and system reliability.
 
 ---
