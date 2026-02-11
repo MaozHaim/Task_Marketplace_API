@@ -162,6 +162,23 @@ class TestHiringProcess:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
+    def test_hire_same_application_twice(self, api_client, create_data):
+        """
+        Test: Application.is_hired is already True.
+        Validate that response.status_code == status.HTTP_409_CONFLICT.
+        """
+        owner, _, job, application = create_data
+        api_client.force_authenticate(user=owner)
+
+        application.is_hired = True
+        application.save()
+
+        url = reverse('job-hire', args=[job.id])
+        response = api_client.post(url, {'application_id': application.id}, format='json')
+
+        assert response.status_code == status.HTTP_409_CONFLICT
+
+
     def test_hire_rollback_on_email_failure(self, api_client, create_data):
         """
         Test: Transaction Rollback on external failure (Reliability/Bonus).
