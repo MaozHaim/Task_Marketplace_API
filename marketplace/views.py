@@ -63,7 +63,7 @@ class JobViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_404_NOT_FOUND
                     )
 
-                if application.is_hired: # We pay twice for the same application
+                if application.is_hired: # In case we are about to pay twice for the same application
                     return Response(
                         {"error": "Already hired this applicant."},
                         status=status.HTTP_409_CONFLICT
