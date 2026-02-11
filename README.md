@@ -30,7 +30,7 @@ The system facilitates a hiring process between **Job Owners** and **Freelancers
    * `models.py`: Defines the Job and Application schemas.
    * `views.py`: Contains the business logic, implements the hire custom action, enforces permissions (Owner vs. Freelancer) and manages Atomic Transactions and Locking.
    * `serializers.py`: Handles data validation and JSON conversion, includes Nested Serialization to display applications within job details.
-   * `tests.py`: A pytest test suite that Covers: Happy path, Permission logic, Transaction rollbacks and more.
+   * `tests.py`: A 'pytest' test suite that Covers: Happy path, Permission logic, Transaction rollbacks and more.
 
 ---
 
