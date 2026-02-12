@@ -66,7 +66,7 @@ Since the system relies on authentication (Owners vs Freelancers), create a supe
 
 ### 5. Run the Server
    * `python manage.py runserver`
-   * Access the API at: http://127.0.0.1:8000/marketplace/jobs/
+   * Access the API at: http://127.0.0.1:8000/marketplace/
 
 ---
 
